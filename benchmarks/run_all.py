@@ -3,6 +3,7 @@ Executes the complete Radical vs Standard Python 12-Benchmark Suite.
 Saves markdown and JSON reports.
 """
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -15,28 +16,45 @@ from benchmarks.benchmark_runner import BenchmarkRunner, BenchmarkResult
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Radical vs Standard Python Massive Benchmark Suite")
+    parser.add_argument("--runs", type=int, default=1, help="Number of measurement runs per benchmark (default: 1)")
+    parser.add_argument("--warmup", type=int, default=0, help="Number of warmup runs per benchmark (default: 0)")
+    parser.add_argument("--benchmark", type=str, default=None, help="Filter to run a specific benchmark (e.g. 01, prime, matrix)")
+    args = parser.parse_args()
+
     benchmarks_dir = Path(__file__).parent
-    runner = BenchmarkRunner(runs=5, warmup=2)
+    runner = BenchmarkRunner(runs=args.runs, warmup=args.warmup)
 
     benchmark_configs = [
-        ("01_parallel_compute", "Multi-Core Prime Count", "Parallelism & Threading"),
-        ("02_simd_vector_dot", "4-Lane SIMD Vector Dot Product", "Hardware SIMD"),
-        ("03_gpu_metal_transform", "Zero-CUDA Apple Metal GPU Transform", "GPU Acceleration"),
-        ("04_raw_memory_buffer", "Continuous Raw Ctypes Buffer vs List", "Memory Architecture"),
-        ("05_struct_vs_class", "Slotted Frozen Struct vs Python Class", "Memory & OOP"),
-        ("06_cartesian_grid", "Cartesian Matrix Coordinate Loop", "Iteration & Loops"),
-        ("07_pipeline_etl", "Data Pipeline ETL Chaining vs Inverted Calls", "Pipelines & Ergonomics"),
-        ("08_safe_nav_traversal", "Deep Safe Traversal vs Defensive If-Checks", "Safe Navigation"),
-        ("09_nullish_coalesce", "Nullish Coalescing (??) vs Ternary None Check", "Coalescing"),
-        ("10_matrix_multiplication", "Matrix Multiplication (80x80)", "Parallel Linear Algebra"),
-        ("11_destructuring_extraction", "Destructuring Assignment vs Subscripts", "Destructuring"),
-        ("12_mandelbrot_fractal", "Mandelbrot Fractal Computation (100x100)", "Parallelism & Numerics"),
+        ("01_parallel_compute", "Multi-Core Prime Count (16M Range)", "Parallelism & Numerics"),
+        ("02_simd_vector_dot", "4-Lane SIMD Vector Dot Product (350M Ops)", "Hardware SIMD"),
+        ("03_gpu_metal_transform", "Apple Metal Zero-CUDA Array Transform (450M Elements)", "GPU Acceleration"),
+        ("04_raw_memory_buffer", "Continuous Raw Ctypes Buffer vs List (600M Writes)", "Memory Architecture"),
+        ("05_struct_vs_class", "Slotted Frozen Struct vs Class (140M Instances)", "Memory & OOP"),
+        ("06_cartesian_grid", "Cartesian Matrix Coordinate Loop (400M Coordinates)", "Iteration & Loops"),
+        ("07_pipeline_etl", "Data Pipeline ETL Chaining vs Inverted Calls (600M Operations)", "Pipelines & Ergonomics"),
+        ("08_safe_nav_traversal", "Deep Safe Traversal vs Defensive Checks (140M Traversals)", "Safe Navigation"),
+        ("09_nullish_coalesce", "Nullish Coalescing (??) vs Ternary Check (1.2B Resolves)", "Coalescing"),
+        ("10_matrix_multiplication", "Matrix Multiplication (900x900 Parallel)", "Parallel Linear Algebra"),
+        ("11_destructuring_extraction", "Destructuring Assignment vs Subscripts (400M Extractions)", "Destructuring"),
+        ("12_mandelbrot_fractal", "Mandelbrot Fractal Computation (2500x2500 Grid)", "Parallelism & Numerics"),
     ]
+
+    if args.benchmark:
+        benchmark_configs = [
+            cfg for cfg in benchmark_configs
+            if args.benchmark.lower() in cfg[0].lower() or args.benchmark.lower() in cfg[1].lower()
+        ]
+        if not benchmark_configs:
+            print(f"No benchmarks matched filter: '{args.benchmark}'")
+            return
 
     results: list[BenchmarkResult] = []
 
     print("==================================================================")
-    print("      RADICAL (.rad) vs STANDARD PYTHON BENCHMARK SUITE")
+    print("      RADICAL (.rad) vs STANDARD PYTHON MASSIVE BENCHMARK SUITE")
+    print(f"      Workload Scale: ~1-2 min Python Execution per Program")
+    print(f"      Radical Mode: Pre-Built Compiled Runtime (Zero Transpile Time)")
     print("==================================================================")
 
     for subdir, name, category in benchmark_configs:

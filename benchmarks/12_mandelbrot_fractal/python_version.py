@@ -1,8 +1,8 @@
-# Benchmark 12: Python Sequential Mandelbrot Fractal (100x100)
+# Benchmark 12: Python Sequential Mandelbrot Fractal (2500x2500)
 
-WIDTH = 100
-HEIGHT = 100
-MAX_ITER = 80
+WIDTH = 2500
+HEIGHT = 2500
+MAX_ITER = 300
 
 def compute_pixel(c_real: float, c_imag: float, max_iter: int) -> int:
     z_real = 0.0

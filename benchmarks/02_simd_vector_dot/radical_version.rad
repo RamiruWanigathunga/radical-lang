@@ -1,13 +1,24 @@
 # Benchmark 02: Radical Hardware-Vectorized SIMD Dot Product
 
-const b = simd[float, 4](2.0, 3.0, 4.0, 5.0)
+const N = 1000000
+const STEPS = 350
+const CHUNK_SIZE = 50000
 
-def run_dot_products():
-    total = 0.0
-    for i in 0..10000:
-        a = simd[float, 4](float(i), float(i + 1), float(i + 2), float(i + 3))
-        total += a.dot(b)
+# Pre-streamed 4-lane vector dataset (e.g. vertices / physics particles)
+vectors = [simd[float, 4](float(i % 100), float((i + 1) % 100), float((i + 2) % 100), float((i + 3) % 100)) for i in 0..N]
+const weights = simd[float, 4](2.0, 3.0, 4.0, 5.0)
+
+chunks = [vectors[i:i + CHUNK_SIZE] for i in range(0, N, CHUNK_SIZE)]
+
+fn process_chunk(chunk: list) -> float:
+    let total = 0.0
+    for _ in 0..STEPS:
+        for v in chunk:
+            total += v.dot(weights)
     return total
 
-res = run_dot_products()
+results = parallel for chunk in chunks:
+    return process_chunk(chunk)
+
+res = sum(results)
 print(f"Total vector dot sum: {res:.1f}")

@@ -7,8 +7,8 @@ class Point:
 
 def run():
     total = 0.0
-    for i in range(25000):
-        p = Point(float(i), float(i + 1))
+    for i in range(140000000):
+        p = Point(float(i % 1000), float((i + 1) % 1000))
         total += p.x * p.x + p.y * p.y
     return total
 

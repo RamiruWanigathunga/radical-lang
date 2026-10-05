@@ -24,7 +24,7 @@ All contributors and maintainers are expected to follow our [Code of Conduct](CO
 ### 2.2 Local Environment Setup
 ```bash
 # 1. Clone the repository
-git clone https://github.com/radical-lang/radical-lang.git
+git clone https://github.com/RamiruWanigathunga/radical-lang.git
 cd radical-lang
 
 # 2. Create and activate a virtual environment

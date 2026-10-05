@@ -1,14 +1,21 @@
 # Benchmark 09: Radical Nullish Coalescing (??)
 
-values = [None if i % 2 == 0 else i for i in 0..50000]
+values = [None if i % 2 == 0 else i for i in 0..5000000]
+const PASSES = 240
+const CHUNK_SIZE = 250000
 
-def run_coalesce(items):
-    resolved = []
-    for item in items:
-        # Radical operator preserving falsy values (0, False)
-        val = item ?? 999
-        resolved.append(val)
-    return resolved
+chunks = [values[i:i + CHUNK_SIZE] for i in range(0, len(values), CHUNK_SIZE)]
 
-res = run_coalesce(values)
-print(f"Coalesced {len(res)} items, sum: {sum(res)}")
+fn process_chunk(chunk: list) -> int:
+    let total = 0
+    for _ in 0..PASSES:
+        for item in chunk:
+            val = item ?? 999
+            total += val
+    return total
+
+results = parallel for chunk in chunks:
+    return process_chunk(chunk)
+
+res = sum(results)
+print(f"Coalesced {len(values) * PASSES} items, sum: {res}")

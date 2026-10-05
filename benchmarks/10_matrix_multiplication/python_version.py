@@ -1,6 +1,6 @@
-# Benchmark 10: Python Sequential Matrix Multiplication (80x80)
+# Benchmark 10: Python Sequential Matrix Multiplication (900x900)
 
-N = 80
+N = 900
 A = [[float(i + j) for j in range(N)] for i in range(N)]
 B = [[float(i * 2 + j) for j in range(N)] for i in range(N)]
 C = [[0.0 for _ in range(N)] for _ in range(N)]

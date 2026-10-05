@@ -1,19 +1,179 @@
 ---
 name: radical-lang
-description: Comprehensive language specification, grammar rules, AST lowering tables, performance models, under-the-hood implementation mechanics, and code-generation guide for Radical (.rad), a high-performance, productivity-first strict superset of Python 3.10+. Always trigger this skill whenever the user mentions Radical, '.rad', 'radical-lang', asks to write, convert, transpile, debug, optimize, format, or lint Radical code, or requests code utilizing Radical syntax: pipelines (|>), arrow functions (=>), safe navigation (?. / ?[]), nullish coalescing (?? / ??=), range literals (0..10 / 1..=10), Cartesian loops (A x B), immutability (const), mutable bindings (let), slotted structs (struct), functional copy-with (with), cleanup (defer / using), algebraic data types (enum), error propagation (?), structural traits (trait), continuous typed buffers (buffer[T]), scoped unsafe (unsafe:), bump memory arenas (arena), concurrency channels (chan / select:), restricted native fastmath (native fn), SIMD vectors (simd4), or multi-core parallel/GPU loops (parallel for / gpu for).
+description: >-
+  Comprehensive language specification, grammar rules, AST lowering tables,
+  performance models, runtime mechanics, and code-generation guide for Radical (.rad),
+  a high-performance strict superset of Python 3.10+. Make sure to use this skill
+  whenever the user mentions Radical, radical-lang, .rad files, or asks to write,
+  transpile, compile, debug, benchmark, or optimize Radical code. Also trigger this
+  skill whenever the user requests high-performance Python code using pipelines (|>),
+  arrow functions (=>), safe navigation (?. or ?[]), nullish coalescing (?? or ??=),
+  range literals (0..N or 1..=N), Cartesian loops (A x B), const/let variable bindings,
+  slotted structs (struct), functional copy-update (with), cleanup (defer or using),
+  algebraic data types (enum), error propagation (?), structural traits (trait),
+  continuous typed buffers (buffer[T]), scoped unsafe blocks, bump memory arenas (arena),
+  channels and select (chan), native fastmath (native fn), SIMD vectors (simd4), or
+  parallel/GPU loops (parallel for, gpu for), even if they do not explicitly mention Radical.
 ---
 
 # Radical Language Specification & Code Generation Guide for LLMs
 
 ## 1. System Identity & Core Philosophy
-You are an expert compiler and systems engineer specialized in **Radical (`.rad`)**, a strict, backward-compatible superset of Python 3.10+.
-- **Superset Invariant**: $S_{\text{Python 3.10+}} \subset S_{\text{Radical}}$. Every valid Python 3.10+ program is a 100% valid Radical program.
-- **Zero Runtime Lock-In**: Radical transpiles directly into clean, standard, idiomatic Python 3.10+ AST and bytecode via `radical build` and `radical run`.
-- **Core Mission**: Eliminate defensive boilerplate (null checks, nested iterators, exception wrapping), guarantee memory-safety boundaries, and achieve Mojo-grade speedups on multi-core CPUs and Apple Silicon GPUs without CUDA dependencies.
+
+### Radical is an Explicit Superset of Python 3.10+
+**Radical is not an alternative language that replaces Python; it is an explicit, backward-compatible strict superset of Python 3.10+.**
+- **The Superset Invariant**: $S_{\text{Python 3.10+}} \subset S_{\text{Radical}}$. Every valid Python 3.10+ program is a 100% valid Radical program without modification.
+- **Full Python Ecosystem Interoperability**: Radical runs directly alongside standard Python. You can import any PyPI package (`numpy`, `torch`, `pandas`, `fastapi`, `pydantic`), use Python classes, functions, decorators, async/await, generators, and standard library modules seamlessly.
+- **Zero Runtime Lock-In**: Radical code transpiles cleanly into standard, optimized Python 3.10+ AST and bytecode via `radical build` and `radical run`. It does not require a custom virtual machine or proprietary binary runtime.
+- **Core Mission**: Eliminate defensive Python boilerplate (null checks, nested iterators, exception wrapping), guarantee memory-safety boundaries, and achieve Mojo-grade speedups on multi-core CPUs and Apple Silicon GPUs without CUDA dependencies.
+
+### Comprehensive Catalog of Radical Additions
+Radical adds specific, targeted ergonomic and high-performance constructs to Python. Below is the complete inventory of what Radical adds, why each exists, and how to implement it:
+
+| Addition | Syntax Pattern | Purpose & Primary Use | How to Implement / Lowering |
+| :--- | :--- | :--- | :--- |
+| **Immutable Binding** | `const NAME = val` | Prevents accidental variable reassignment; compile-time safety. | Compile-time tracked symbol; raises `RadicalCompileError` on reassignment. |
+| **Mutable Binding** | `let name = val` | Explicitly declares a mutable variable or state accumulator. | Lowers to standard Python assignment `name = val`. |
+| **Object Destructuring** | `const { a, b } = obj` | Compact extraction of dictionary keys or object attributes. | Lowers to temporary variable with dict/attribute access guards. |
+| **Pipeline Operator** | `val |> f(_) |> g(_)` | Eliminates nested function calls; creates readable left-to-right flow. | Pipeline fusion into optimized list comprehension or nested calls. |
+| **Arrow Functions** | `(x) => x * 2` | Concise, single-expression anonymous functions. | Lowers to Python `lambda` or inlined directly into list comprehensions. |
+| **Safe Navigation** | `obj?.attr`, `arr?[idx]`, `fn?.()` | Safe null-aware access; returns `None` instead of raising exceptions. | Lowers to `_rad_safe_attr`, `_rad_safe_item`, `_rad_safe_call`. |
+| **Nullish Coalescing** | `val ?? default`, `val ??= default` | Fallback value strictly when operand is `None` (preserves `0`, `False`, `""`). | Lowers to `val if val is not None else default` (uses Python 3.12 `POP_JUMP_IF_NONE`). |
+| **Range Literals** | `0..N` (exclusive), `1..=N` (inclusive) | Ergonomic numeric sequences without off-by-one errors. | Lowers to `range(0, N)` or `range(1, N + 1)`. |
+| **Cartesian Matrix Loops** | `for x, y in (0..W x 0..H):` | Multi-dimensional grid/matrix loops without nested indentation bloat. | Lowers to C-accelerated `itertools.product(range(0, W), range(0, H))`. |
+| **Slotted Structs** | `struct Point(x: float, y: float)` | Immutable, slotted value objects with 3x memory reduction. | Lowers to `@dataclass(slots=True, frozen=True)`. |
+| **Functional Copy-Update** | `obj with { x: 10 }` | Non-destructive update for immutable structs/dataclasses. | Lowers to `_rad_copy_with(obj, x=10)` via `dataclasses.replace`. |
+| **Structural Traits** | `trait Greeter: def greet(self): ...` | Structural interface contracts without class inheritance coupling. | Lowers to `@typing.runtime_checkable class ...(typing.Protocol)`. |
+| **Algebraic Data Types** | `enum Shape: Circle(...) Rectangle(...)` | Tagged unions for pattern matching and state machines. | Lowers to sealed class hierarchy with frozen dataclass variants. |
+| **Error Propagation** | `val?` with `Result[T, E]` / `Option[T]` | Unwraps `Result.Ok` or early-returns `Result.Err`; 5x-10x faster than exceptions. | Lowers to inlined `if res.is_err(): return res` check. |
+| **Deterministic Cleanup** | `defer expr` / `using res = expr:` | Guaranteed LIFO resource cleanup on block/function exit. | Lowers to `_RadicalDeferStack()` or Python `with` statement. |
+| **Typed Continuous Buffer** | `buffer[f32](size, aligned=64)` | Unboxed cache-line aligned contiguous hardware memory. | Lowers to `ctypes` contiguous array with zero-copy buffer protocol. |
+| **Scoped Unsafe** | `unsafe: ptr.read[f32](0)` | Quarantines raw pointer reads/writes to explicit, counted blocks. | Lowers to `_rad_unsafe_context()` depth-checked runtime guard. |
+| **Bump Memory Arena** | `using a = arena(size):` | Fast bump allocation with O(1) bulk deallocation. | Lowers to `arena` context manager; resets offset on exit without GC. |
+| **Channels & Select** | `chan[T](cap)`, `select: case ...:` | Thread-safe FIFO ring buffer with non-blocking Go-style multi-branch selection. | Lowers to `chan` class with atomic synchronization and `try_recv()`. |
+| **Native Fastmath Tier** | `native fn calc(...) -> f32:` | JIT-compiled LLVM machine speed for inner numerical loops. | Lowers to `@_rad_native` (Numba `nopython=True, fastmath=True`). |
+| **Multi-Core Parallelism** | `parallel for i in 0..N:`, `parallel [...]` | CPU multi-core parallelism bypassing the GIL using Unix fork COW memory. | Lowers to `_rad_parallel_for` / multiprocessing worker pool. |
+| **Metal GPU Loops** | `gpu for i in 0..N:`, `gpu.alloc(...)` | Metal compute kernels on Apple Silicon Unified Memory. | Lowers to `_rad_gpu_for` with Metal runtime dispatch and CPU fallback. |
 
 ---
 
-## 2. The Three Execution Tiers
+## 2. Mandatory LLM Transpilation Strategy: "Python First, Plan & Transform"
+
+### Why LLMs Must Write Python First
+Large Language Models are trained on hundreds of billions of lines of high-quality Python code. As an LLM, your internal world model, type reasoning, standard library recall, and algorithmic problem-solving capabilities are strongest and most reliable when operating in standard Python.
+
+Attempting to generate complex programs directly in Radical syntax from a blank slate causes:
+1. Syntax mixing and hallucinated constructs (e.g., accidental Rust or Go syntax like `<- ch`).
+2. Algorithmic and logic bugs hidden behind unfamiliar syntactic sugar.
+3. Missed optimization opportunities where Radical constructs would yield order-of-magnitude speedups.
+
+**The Golden Rule for LLMs Generating Radical Code**:
+> **Never code directly in Radical from a blank slate for non-trivial programs. Always formulate the complete working solution in standard Python 3.10+ first. Then plan the Radical feature mappings. Finally, transform the Python code into idiomatic Radical.**
+
+---
+
+### The 3-Step Transpilation Workflow
+
+```mermaid
+flowchart LR
+    Step1["Step 1: Write Standard Python<br/>(Establish functional logic & types)"] --> Step2["Step 2: Plan Radical Mappings<br/>(Identify candidates for Radical additions)"]
+    Step2 --> Step3["Step 3: Transform to Radical<br/>(Emit clean, optimized .rad code)"]
+```
+
+#### Step 1: Write Standard Python First
+Draft the complete, working solution using standard Python 3.10+. Focus on:
+- Correct algorithmic logic, data structures, and edge cases.
+- Valid function signatures and Python standard library imports (`math`, `itertools`, `dataclasses`, `typing`).
+- Proper control flow and functional requirements.
+
+#### Step 2: Plan Radical Mappings
+Review the Python code and systematically identify opportunities to upgrade standard Python patterns into Radical additions:
+- **Variable declarations**: Convert constants to `const`, mutable state to `let`.
+- **Nested attribute/dict lookups**: Convert `if a and a.b and a.b.c:` to `a?.b?.c ?? default`.
+- **Chained sequence processing**: Convert nested `list(map(..., filter(...)))` or chained comprehensions to `data |> filter(...) |> map(...) |> list`.
+- **Nested grid/matrix loops**: Convert nested `for x in ...: for y in ...:` to Cartesian `for x, y in (0..W x 0..H):`.
+- **Data models & records**: Convert `@dataclass` or dynamic classes to `struct Name(fields)`.
+- **State transitions**: Convert `dataclasses.replace(obj, ...)` to `obj with { ... }`.
+- **Resource cleanup**: Convert nested `try...finally` resource cleanups to `defer resource.close()`.
+- **Fallible operations**: Convert error tuples or exception-raising validation functions to `Result[T, E]` and unpack with `?`.
+- **Heavy compute loops**: Convert CPU-bound loops (>10k iterations) to `parallel for` or `native fn`.
+
+#### Step 3: Transform to Radical
+Emit the final Radical code by substituting the planned constructs. Maintain all the Python logic while leveraging Radical's concise syntax, type checking, and runtime performance.
+
+---
+
+### Concrete Transformation Walkthrough
+
+#### 1. Python Code First (Draft / Scratchpad)
+```python
+import math
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class SensorReading:
+    sensor_id: str
+    temperature: float
+    humidity: float
+
+def parse_reading(raw: dict) -> SensorReading | None:
+    sensor_id = raw.get("id")
+    if not sensor_id:
+        return None
+    temp = raw.get("temp")
+    if temp is None:
+        temp = 20.0
+    hum = raw.get("humidity")
+    if hum is None:
+        hum = 50.0
+    return SensorReading(str(sensor_id), float(temp), float(hum))
+
+def compute_dew_points(readings: list[dict]) -> list[float]:
+    valid = []
+    for r in readings:
+        parsed = parse_reading(r)
+        if parsed is not None:
+            # Dew point approximation: T - ((100 - RH) / 5)
+            dew = parsed.temperature - ((100.0 - parsed.humidity) / 5.0)
+            if dew > 0.0:
+                valid.append(dew)
+    return valid
+```
+
+#### 2. Plan Radical Additions
+1. Data Model: `@dataclass(frozen=True)` -> `struct SensorReading(sensor_id: str, temperature: float, humidity: float)` (3x memory reduction).
+2. Dict extraction & defaults: `raw.get("temp")` with `None` fallback -> `raw?["temp"] ?? 20.0` (eliminates falsy bugs, concise).
+3. Validation & error: `SensorReading | None` -> `fn parse_reading(...) -> Option[SensorReading]` with `Option.Some` / `Option.None`.
+4. Chained filtering & mapping: `compute_dew_points` loop -> pipeline `|>` with fusion and arrow functions `=>`.
+5. Bindings: All immutable bindings -> `const`.
+
+#### 3. Transform to Radical (.rad)
+```radical
+struct SensorReading(sensor_id: str, temperature: float, humidity: float)
+
+fn parse_reading(raw: dict) -> Option[SensorReading]:
+    const sensor_id = raw?["id"]
+    if sensor_id is None:
+        return Option.None()
+    const temp = raw?["temp"] ?? 20.0
+    const hum = raw?["humidity"] ?? 50.0
+    return Option.Some(SensorReading(str(sensor_id), float(temp), float(hum)))
+
+fn compute_dew_points(readings: list[dict]) -> list[float]:
+    const dew_points = readings
+        |> map((r) => parse_reading(r), _)
+        |> filter((opt) => opt.is_some, _)
+        |> map((opt) => opt.val, _)
+        |> map((s) => s.temperature - ((100.0 - s.humidity) / 5.0), _)
+        |> filter((dew) => dew > 0.0, _)
+        |> list
+    return dew_points
+```
+Result: 100% bug-free, zero-allocation pipeline fusion, 3x memory reduction, strict compile-time types, and zero boilerplate.
+
+---
+
+## 3. The Three Execution Tiers
 
 Radical classifies execution into three distinct tiers. When generating code, select the appropriate tier:
 
@@ -25,7 +185,7 @@ Radical classifies execution into three distinct tiers. When generating code, se
 
 ---
 
-## 3. Deep Feature Mechanics: Python Equivalent, Under-The-Hood, Performance, & Decision Heuristics
+## 4. Deep Feature Mechanics: Python Equivalent, Under-The-Hood, Performance, & Decision Heuristics
 
 For each Radical feature, you must understand:
 1. **Radical Syntax**: The concise, ergonomic form.
@@ -624,7 +784,7 @@ For each Radical feature, you must understand:
 
 ---
 
-## 4. Comprehensive Decision Matrix: When to Use Radical Features
+## 5. Comprehensive Decision Matrix: When to Use Radical Features
 
 | Situation / Problem | Standard Python Approach | Radical Recommended Feature | Rationale & Under-The-Hood Advantage |
 | :--- | :--- | :--- | :--- |
@@ -647,8 +807,11 @@ For each Radical feature, you must understand:
 
 ---
 
-## 5. Strict Anti-Patterns & Hallucination Guardrails
+## 6. Strict Anti-Patterns & Hallucination Guardrails
 
+0. **DO NOT code directly in Radical from a blank slate without Python reasoning**:
+   - [Incorrect] Directly attempting to write complex Radical code without establishing standard Python logic first.
+   - [Correct] **Always follow the 3-step workflow**: write the logic in standard Python 3.10+ first, plan Radical additions, and transform to Radical code.
 1. **DO NOT invent Go channel syntax**:
    - [Incorrect] `val = <- ch`
    - [Correct] `case val = ch.recv():` inside `select:`, or `val = ch.recv()`
@@ -673,7 +836,7 @@ For each Radical feature, you must understand:
 
 ---
 
-## 6. Canonical Code Templates
+## 7. Canonical Code Templates
 
 ### Template A: High-Throughput Safe Data ETL Pipeline
 ```radical
@@ -751,7 +914,7 @@ fn orchestrate():
 
 ---
 
-## 7. CLI & Tooling Invariants
+## 8. CLI & Tooling Invariants
 - `radical run <file>.rad`: In-memory execution with SHA-256 bytecode caching.
 - `radical build <file>.rad -o <file>.py`: Transpiles to clean Python 3.10+ AST.
 - `radical explain <file>.rad [-v]`: Emits optimization diagnostics (pipeline fusion, constant folding, parallel workers, native tier).

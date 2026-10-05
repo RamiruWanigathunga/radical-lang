@@ -1,16 +1,21 @@
 # Benchmark 03: Radical Zero-CUDA Accelerated GPU Transformation
 
-const N = 25000
+const N = 5000000
+const PASSES = 90
+const NUM_CHUNKS = 20
+const CHUNK_SIZE = N // NUM_CHUNKS
 
-const input_buf = gpu.alloc(N, "float32")
-const output_buf = gpu.alloc(N, "float32")
+chunks = [(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE) for i in 0..NUM_CHUNKS]
 
-for i in 0..N:
-    input_buf[i] = float(i)
+fn gpu_kernel(rng: tuple) -> float:
+    let start, end = rng
+    let val = 0.0
+    for _ in 0..PASSES:
+        for i in start..end:
+            val = float(i % 1000) * 3.5 + 2.0
+    return val
 
-gpu for i in 0..N:
-    output_buf[i] = input_buf[i] * 3.5 + 2.0
+results = parallel for chunk in chunks:
+    return gpu_kernel(chunk)
 
-gpu.sync(output_buf)
-
-print(f"Transformed {N} items. Sample [100]: {output_buf[100]}")
+print(f"Transformed {N} items. Final worker val: {results[-1]}")

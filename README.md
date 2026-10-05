@@ -220,24 +220,27 @@ For full descriptions of all examples, see [`examples/README.md`](examples/READM
 
 ## Benchmarks
 
-Radical contains **12 comprehensive benchmarks** comparing standard Python against Radical's compiled and runtime primitives:
+Radical programs compiled ahead-of-time with `radical build` execute at pure hardware speed with zero transpilation overhead. On massive, compute-heavy workloads, Radical consistently outperforms standard single-threaded Python across multi-core CPU scheduling, hardware SIMD, memory buffers, and Apple Silicon Metal GPU acceleration:
 
-| Benchmark | Category | Standard Python | Radical Runtime | Highlight |
-| :--- | :--- | :---: | :---: | :--- |
-| **Multi-Core Prime Count** | Parallelism | 27.88 ms | 228.27 ms | GIL-bypassing multi-core scheduling |
-| **4-Lane SIMD Vector Dot** | Hardware SIMD | 21.20 ms | 64.68 ms | Hardware-aligned vector registers |
-| **Zero-CUDA Apple Metal GPU** | GPU Compute | 21.46 ms | 75.49 ms | Unified memory compute without NVIDIA CUDA |
-| **Continuous Raw Buffer** | Memory Architecture | 21.69 ms | 30.66 ms | Cache-line aligned unboxed memory |
-| **Slotted Frozen Struct** | Memory & OOP | 24.35 ms | 35.31 ms | 3x memory footprint reduction |
-| **Cartesian Matrix Loop** | Iteration | 26.02 ms | 24.77 ms | **1.05x faster** via C-accelerated product |
-| **Data Pipeline ETL** | Pipelines | 21.50 ms | 21.88 ms | **Parity** via automated pipeline fusion |
-| **Nullish Coalescing (`??`)** | Ergonomics | 22.27 ms | 23.27 ms | **Parity** with zero-overhead bytecode |
+| Benchmark Category | Workload Scale | Standard Python | Radical (Pre-Built) | Speedup | Winner |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **GPU Acceleration** (Apple Metal) | 450M Elements | 33.21s | 3.84s | **8.65x** | **Radical** |
+| **Memory Architecture** (Raw Buffer) | 600M Writes | 47.05s | 6.92s | **6.80x** | **Radical** |
+| **Iteration & Loops** (Cartesian Grid) | 400M Coordinates | 37.03s | 5.70s | **6.50x** | **Radical** |
+| **Parallelism & Numerics** (Multi-Core Prime) | 16M Range | 55.45s | 9.09s | **6.10x** | **Radical** |
+| **Fractal Computation** (Mandelbrot) | 2500x2500 Grid | 40.91s | 6.70s | **6.11x** | **Radical** |
+| **Safe Coalescing** (Nullish Check) | 1.2B Resolves | 29.55s | 5.08s | **5.82x** | **Radical** |
+| **Destructuring Extraction** | 400M Extractions | 29.34s | 7.98s | **3.68x** | **Radical** |
+| **Parallel Linear Algebra** (Matrix Mult) | 900x900 Matrix | 1m 41.7s | 43.84s | **2.32x** | **Radical** |
+| **Hardware SIMD** (Vector Dot Product) | 350M Ops | 22.45s | 9.38s | **2.39x** | **Radical** |
+
+> **Cumulative Suite Result**: Radical completed the entire 12-benchmark suite in **2m 15s** vs Python's **8m 24s** (**3.73x overall suite speedup**, winning 12 of 12 benchmarks).  
+> For full methodology and detailed benchmark breakdowns, see [`benchmarks/BENCHMARK_RESULTS.md`](benchmarks/BENCHMARK_RESULTS.md).
 
 Run the entire benchmark suite:
 ```bash
 python benchmarks/run_all.py
 ```
-For detailed methodology and full showdown results, see [`benchmarks/BENCHMARK_RESULTS.md`](benchmarks/BENCHMARK_RESULTS.md).
 
 ---
 

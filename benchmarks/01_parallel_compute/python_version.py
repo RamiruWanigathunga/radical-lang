@@ -16,7 +16,7 @@ def is_prime(n: int) -> bool:
 
 def compute():
     count = 0
-    for n in range(1, 30000):
+    for n in range(1, 16000000):
         if is_prime(n):
             count += 1
     return count

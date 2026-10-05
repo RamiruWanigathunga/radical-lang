@@ -156,6 +156,19 @@ def transform_destructuring(tokens: list[Token]) -> tuple[list[Token], list[tupl
                 destruct_tokens.extend(source_expr_tokens)
                 destruct_tokens.append(Token(TokenType.NEWLINE, "\n", line, col))
 
+                is_dict_var = f"_rad_is_dict_{destruct_id}"
+                destruct_tokens.extend([
+                    Token(TokenType.IDENTIFIER, is_dict_var, line, col),
+                    Token(TokenType.OP, "=", line, col),
+                    Token(TokenType.IDENTIFIER, "type", line, col),
+                    Token(TokenType.DELIMITER, "(", line, col),
+                    Token(TokenType.IDENTIFIER, tmp_var, line, col),
+                    Token(TokenType.DELIMITER, ")", line, col),
+                    Token(TokenType.IDENTIFIER, "is", line, col),
+                    Token(TokenType.IDENTIFIER, "dict", line, col),
+                    Token(TokenType.NEWLINE, "\n", line, col),
+                ])
+
                 for src_name, tgt_name, f_line, f_col in fields:
                     if is_const:
                         destruct_consts.append((tgt_name, f_line, f_col))
@@ -168,12 +181,7 @@ def transform_destructuring(tokens: list[Token]) -> tuple[list[Token], list[tupl
                         Token(TokenType.STRING, f'"{src_name}"', f_line, col),
                         Token(TokenType.DELIMITER, "]", f_line, col),
                         Token(TokenType.IDENTIFIER, "if", f_line, col),
-                        Token(TokenType.IDENTIFIER, "isinstance", f_line, col),
-                        Token(TokenType.DELIMITER, "(", f_line, col),
-                        Token(TokenType.IDENTIFIER, tmp_var, f_line, col),
-                        Token(TokenType.DELIMITER, ",", f_line, col),
-                        Token(TokenType.IDENTIFIER, "dict", f_line, col),
-                        Token(TokenType.DELIMITER, ")", f_line, col),
+                        Token(TokenType.IDENTIFIER, is_dict_var, f_line, col),
                         Token(TokenType.IDENTIFIER, "else", f_line, col),
                         Token(TokenType.IDENTIFIER, "getattr", f_line, col),
                         Token(TokenType.DELIMITER, "(", f_line, col),

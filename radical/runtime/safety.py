@@ -24,6 +24,12 @@ def _rad_safe_item(obj: Any, key: Any) -> Any:
     """
     if obj is None:
         return None
+    if obj.__class__ is dict:
+        return obj.get(key)
+    if isinstance(obj, dict):
+        return obj.get(key)
+    if obj.__class__ is list or obj.__class__ is tuple:
+        return obj[key] if isinstance(key, int) and -len(obj) <= key < len(obj) else None
     try:
         return obj[key]
     except (IndexError, KeyError, TypeError):

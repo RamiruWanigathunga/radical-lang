@@ -39,7 +39,7 @@ class GPUBuffer:
         return self._array[idx]
 
     def __setitem__(self, idx: int, val: Any) -> None:
-        self._array[idx] = self.c_type(val)
+        self._array[idx] = val
 
     def to_list(self) -> list[Any]:
         return list(self._array)

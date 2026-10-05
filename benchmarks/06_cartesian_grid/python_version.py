@@ -7,5 +7,5 @@ def compute_grid(w: int, h: int) -> float:
             total_dist += (x * x + y * y) ** 0.5
     return total_dist
 
-res = compute_grid(300, 300)
+res = compute_grid(20000, 20000)
 print(f"Total grid distance: {res:.2f}")

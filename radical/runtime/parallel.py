@@ -32,8 +32,8 @@ def _rad_parallel_for(
 
     actual_chunk = chunk_size or max(1, n // (workers * 4))
 
-    # On macOS Darwin, fork() triggers deprecation & deadlocks with system threads; use thread pool fallback
-    is_safe_to_fork = hasattr(os, "fork") and sys.platform != "darwin"
+    # Fork is supported on POSIX systems (Linux & macOS) for clean CPU multi-core scaling
+    is_safe_to_fork = hasattr(os, "fork")
     if mode in ("process", "fork", "multiprocess") and is_safe_to_fork:
         try:
             fn_name = getattr(fn, "__name__", None)

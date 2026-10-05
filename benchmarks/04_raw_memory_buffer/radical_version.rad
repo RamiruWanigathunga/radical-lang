@@ -1,12 +1,22 @@
 # Benchmark 04: Radical Raw Continuous Ctypes Memory Buffer
 
-const SIZE = 50000
+const SIZE = 5000000
+const PASSES = 120
+const NUM_CHUNKS = 20
+const CHUNK_SIZE = SIZE // NUM_CHUNKS
 
-# Allocate continuous physical byte buffer
-raw buf[50000]:
+chunks = [(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE) for i in 0..NUM_CHUNKS]
 
-for i in 0..SIZE:
-    buf[i] = (i * 7) % 256
+fn process_buffer_chunk(rng: tuple) -> int:
+    let start, end = rng
+    raw buf[250000]:
+    for _ in 0..PASSES:
+        for i in 0..(end - start):
+            buf[i] = ((start + i) * 7) % 256
+    return sum(buf)
 
-total = sum(buf)
+results = parallel for chunk in chunks:
+    return process_buffer_chunk(chunk)
+
+total = sum(results)
 print(f"Memory sum: {total}")

@@ -1,14 +1,18 @@
 # Benchmark 02: Standard Python 4-Lane Vector Dot Product
 
+N = 1000000
+STEPS = 350
+
+# Pre-streamed 4-lane vector dataset (e.g. vertices / physics particles)
+vectors = [[float(i % 100), float((i + 1) % 100), float((i + 2) % 100), float((i + 3) % 100)] for i in range(N)]
+weights = [2.0, 3.0, 4.0, 5.0]
+
 def run_dot_products():
     total = 0.0
-    for i in range(10000):
-        # 4-lane vector representation in Python
-        a = [float(i), float(i + 1), float(i + 2), float(i + 3)]
-        b = [2.0, 3.0, 4.0, 5.0]
-        # Dot product: sum(x*y for x, y in zip(a, b))
-        dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]
-        total += dot
+    w0, w1, w2, w3 = weights[0], weights[1], weights[2], weights[3]
+    for _ in range(STEPS):
+        for v in vectors:
+            total += v[0] * w0 + v[1] * w1 + v[2] * w2 + v[3] * w3
     return total
 
 res = run_dot_products()

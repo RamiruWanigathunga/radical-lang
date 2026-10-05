@@ -1,6 +1,6 @@
-# Benchmark 10: Radical Multi-Core Parallel Matrix Multiplication (80x80)
+# Benchmark 10: Radical Multi-Core Parallel Matrix Multiplication (900x900)
 
-const N = 80
+const N = 900
 A = [[float(i + j) for j in 0..N] for i in 0..N]
 B = [[float(i * 2 + j) for j in 0..N] for i in 0..N]
 C = [[0.0 for _ in 0..N] for _ in 0..N]

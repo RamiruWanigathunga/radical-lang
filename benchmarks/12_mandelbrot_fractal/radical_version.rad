@@ -1,30 +1,28 @@
-# Benchmark 12: Radical Multi-Core Parallel Mandelbrot Fractal (100x100)
+# Benchmark 12: Radical Multi-Core Parallel Mandelbrot Fractal (2500x2500)
 
-const WIDTH = 100
-const HEIGHT = 100
-const MAX_ITER = 80
+const WIDTH = 2500
+const HEIGHT = 2500
+const MAX_ITER = 300
 
 fn compute_pixel(c_real: float, c_imag: float, max_iter: int) -> int:
-    z_real = 0.0
-    z_imag = 0.0
+    let z_real = 0.0
+    let z_imag = 0.0
     for iter_count in 0..max_iter:
-        zr2 = z_real * z_real
-        zi2 = z_imag * z_imag
+        let zr2 = z_real * z_real
+        let zi2 = z_imag * z_imag
         if zr2 + zi2 > 4.0:
             return iter_count
         z_imag = 2.0 * z_real * z_imag + c_imag
         z_real = zr2 - zi2 + c_real
     return max_iter
 
-row_escapes = []
-
-parallel for y in 0..HEIGHT:
-    c_imag = -1.2 + (y / HEIGHT) * 2.4
-    row_sum = 0
+row_escapes = parallel for y in 0..HEIGHT:
+    let c_imag = -1.2 + (y / HEIGHT) * 2.4
+    let row_sum = 0
     for x in 0..WIDTH:
-        c_real = -2.0 + (x / WIDTH) * 2.5
+        let c_real = -2.0 + (x / WIDTH) * 2.5
         row_sum += compute_pixel(c_real, c_imag, MAX_ITER)
-    row_escapes.append(row_sum)
+    return row_sum
 
 escapes = sum(row_escapes)
 print(f"Total Mandelbrot escape iterations: {escapes}")

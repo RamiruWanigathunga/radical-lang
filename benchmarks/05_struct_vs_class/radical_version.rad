@@ -2,12 +2,22 @@
 
 struct Point(x: float, y: float)
 
-def run():
-    total = 0.0
-    for i in 0..25000:
-        p = Point(float(i), float(i + 1))
+const N = 140000000
+const NUM_CHUNKS = 14
+const CHUNK_SIZE = N // NUM_CHUNKS
+
+chunks = [(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE) for i in 0..NUM_CHUNKS]
+
+fn process_chunk(rng: tuple) -> float:
+    let start, end = rng
+    let total = 0.0
+    for i in start..end:
+        p = Point(float(i % 1000), float((i + 1) % 1000))
         total += p.x * p.x + p.y * p.y
     return total
 
-res = run()
+results = parallel for chunk in chunks:
+    return process_chunk(chunk)
+
+res = sum(results)
 print(f"Total distance sum: {res:.1f}")

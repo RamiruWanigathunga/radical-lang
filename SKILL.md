@@ -1,6 +1,19 @@
 ---
 name: radical-lang
-description: Comprehensive language specification, grammar rules, AST lowering tables, performance models, under-the-hood implementation mechanics, and code-generation guide for Radical (.rad), a high-performance, productivity-first strict superset of Python 3.10+. Always trigger this skill whenever the user mentions Radical, '.rad', 'radical-lang', asks to write, convert, transpile, debug, optimize, format, or lint Radical code, or requests code utilizing Radical syntax: pipelines (|>), arrow functions (=>), safe navigation (?. / ?[]), nullish coalescing (?? / ??=), range literals (0..10 / 1..=10), Cartesian loops (A x B), immutability (const), mutable bindings (let), slotted structs (struct), functional copy-with (with), cleanup (defer / using), algebraic data types (enum), error propagation (?), structural traits (trait), continuous typed buffers (buffer[T]), scoped unsafe (unsafe:), bump memory arenas (arena), concurrency channels (chan / select:), restricted native fastmath (native fn), SIMD vectors (simd4), or multi-core parallel/GPU loops (parallel for / gpu for).
+description: >-
+  Comprehensive language specification, grammar rules, AST lowering tables,
+  performance models, runtime mechanics, and code-generation guide for Radical (.rad),
+  a high-performance strict superset of Python 3.10+. Make sure to use this skill
+  whenever the user mentions Radical, radical-lang, .rad files, or asks to write,
+  transpile, compile, debug, benchmark, or optimize Radical code. Also trigger this
+  skill whenever the user requests high-performance Python code using pipelines (|>),
+  arrow functions (=>), safe navigation (?. or ?[]), nullish coalescing (?? or ??=),
+  range literals (0..N or 1..=N), Cartesian loops (A x B), const/let variable bindings,
+  slotted structs (struct), functional copy-update (with), cleanup (defer or using),
+  algebraic data types (enum), error propagation (?), structural traits (trait),
+  continuous typed buffers (buffer[T]), scoped unsafe blocks, bump memory arenas (arena),
+  channels and select (chan), native fastmath (native fn), SIMD vectors (simd4), or
+  parallel/GPU loops (parallel for, gpu for), even if they do not explicitly mention Radical.
 ---
 
 # Radical Language Specification & Code Generation Guide for LLMs

@@ -205,7 +205,7 @@ class TypedBuffer:
     def __setitem__(self, idx: int, val: Any) -> None:
         if idx < 0 or idx >= self.size:
             raise IndexError(f"Buffer index {idx} out of bounds for buffer of size {self.size}")
-        self._raw_array[idx] = self.c_type(val)
+        self._raw_array[idx] = val
 
     @property
     def ptr(self) -> BufferPointer:

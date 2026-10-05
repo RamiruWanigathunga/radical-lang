@@ -3,14 +3,24 @@
 data = [
     {"user": {"profile": {"address": {"city": "Tokyo"}}}} if i % 3 == 0 else
     ({"user": {"profile": None}} if i % 3 == 1 else {})
-    for i in 0..15000
+    for i in 0..1000000
 ]
+const PASSES = 140
+const CHUNK_SIZE = 50000
 
-def traverse(items):
-    cities = []
-    for item in items:
-        cities.append(item?["user"]?["profile"]?["address"]?["city"] ?? "Unknown")
-    return cities
+chunks = [data[i:i + CHUNK_SIZE] for i in range(0, len(data), CHUNK_SIZE)]
 
-res = traverse(data)
-print(f"Traversed {len(res)} items. Unknown count: {res.count('Unknown')}")
+fn process_chunk(chunk: list) -> int:
+    let tokyo_count = 0
+    for _ in 0..PASSES:
+        for item in chunk:
+            c = item?["user"]?["profile"]?["address"]?["city"] ?? "Unknown"
+            if c == "Tokyo":
+                tokyo_count += 1
+    return tokyo_count
+
+results = parallel for chunk in chunks:
+    return process_chunk(chunk)
+
+res = sum(results)
+print(f"Traversed {len(data) * PASSES} items. Tokyo count: {res}")

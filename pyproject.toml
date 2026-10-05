@@ -51,10 +51,10 @@ metal = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/radical-lang/radical-lang"
-Documentation = "https://github.com/radical-lang/radical-lang#readme"
-Repository = "https://github.com/radical-lang/radical-lang.git"
-Issues = "https://github.com/radical-lang/radical-lang/issues"
+Homepage = "https://github.com/RamiruWanigathunga/radical-lang"
+Documentation = "https://github.com/RamiruWanigathunga/radical-lang#readme"
+Repository = "https://github.com/RamiruWanigathunga/radical-lang.git"
+Issues = "https://github.com/RamiruWanigathunga/radical-lang/issues"
 
 [project.scripts]
 radical = "radical.cli:main"

@@ -10,7 +10,7 @@ class SIMDVector:
     """
     Hardware-aligned SIMD vector representing contiguous lanes of numeric data.
     """
-    __slots__ = ("_dtype", "_width", "_data")
+    __slots__ = ("_dtype", "_width", "_data", "x", "y", "z", "w")
 
     def __init__(self, dtype: type, width: int, values: Sequence[Any]) -> None:
         self._dtype = dtype
@@ -21,6 +21,11 @@ class SIMDVector:
             self._data = [dtype(v) for v in values]
         else:
             raise ValueError(f"Expected {width} values or 1 scalar for SIMD[{dtype.__name__}, {width}], got {len(values)}")
+        if width == 4:
+            self.x = self._data[0]
+            self.y = self._data[1]
+            self.z = self._data[2]
+            self.w = self._data[3]
 
     def __len__(self) -> int:
         return self._width
@@ -87,16 +92,14 @@ class SIMDVector:
         """Computes the dot product of two SIMD vectors."""
         if self._width != other._width:
             raise ValueError("SIMD vector widths must match for dot product")
-        a, b = self._data, other._data
         if self._width == 4:
-            return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]
-        return sum(x * y for x, y in zip(a, b))
+            return self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
+        return sum(x * y for x, y in zip(self._data, other._data))
 
     def sum(self) -> Any:
         """Reduces the vector by summing all lanes."""
-        a = self._data
         if self._width == 4:
-            return a[0] + a[1] + a[2] + a[3]
+            return self.x + self.y + self.z + self.w
         return sum(self._data)
 
     def to_list(self) -> list[Any]:
@@ -112,10 +115,17 @@ class SIMDVector:
 
 class _SIMDFactory:
     """Provides Mojo-style `simd[dtype, width](*vals)` syntax and direct `simd(vals)` calls."""
+    def __init__(self) -> None:
+        self._cache: dict[tuple[type, int], Callable[..., SIMDVector]] = {}
+
     def __getitem__(self, item: tuple[type, int]) -> Callable[..., SIMDVector]:
+        cached = self._cache.get(item)
+        if cached is not None:
+            return cached
         dtype, width = item
         def creator(*vals: Any) -> SIMDVector:
             return SIMDVector(dtype, width, vals)
+        self._cache[item] = creator
         return creator
 
     def __call__(self, *args: Any) -> SIMDVector:
