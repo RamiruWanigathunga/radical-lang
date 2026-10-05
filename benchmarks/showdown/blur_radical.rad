@@ -1,0 +1,42 @@
+# Showdown 04: Radical Multi-Core 2D 5x5 Gaussian Image Convolution
+# Performs a 2D 5x5 stencil filter on a 2000x2000 image matrix (100,000,000 MAC ops).
+# Uses zero-copy memory sharing and all CPU cores via Radical's `parallel(mode="process")`.
+
+import time
+
+const W = 2000
+const H = 2000
+const IMAGE = [[(x * y) % 256 for x in 0..W] for y in 0..H]
+
+const WEIGHTS = (
+    (1, 4, 6, 4, 1),
+    (4, 16, 24, 16, 4),
+    (6, 24, 36, 24, 6),
+    (4, 16, 24, 16, 4),
+    (1, 4, 6, 4, 1),
+)
+
+fn blur_row(y: int) -> int:
+    r_slice = [IMAGE[y + dy] for dy in -2..=2]
+    row_sum = 0
+    for x in 2..W - 2:
+        acc = 0
+        for dy in 0..5:
+            r = r_slice[dy]
+            w = WEIGHTS[dy]
+            acc += r[x-2]*w[0] + r[x-1]*w[1] + r[x]*w[2] + r[x+1]*w[3] + r[x+2]*w[4]
+        row_sum += (acc >> 8)
+    return row_sum
+
+print(f"[Radical] Starting Multi-Core 2D Image Convolution ({W}x{H} = {W*H:,} pixels)...")
+
+start = time.perf_counter()
+
+# Parallel stencil computation across all CPU cores
+row_results = parallel(mode="process", chunk_size=40) for y in 2..H - 2:
+    return blur_row(y)
+
+total_val = sum(row_results)
+elapsed = time.perf_counter() - start
+
+print(f"[Radical] Finished in {elapsed:.3f} s (Checksum: {total_val})")

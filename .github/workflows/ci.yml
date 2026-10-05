@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }} on ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run Pytest Suite
+        run: |
+          pytest -v
+
+      - name: Verify All 16 Examples
+        run: |
+          for f in examples/*/*.rad; do
+            echo "Executing $f"
+            python -m radical.cli run "$f"
+          done
+
+      - name: Verify CLI Tools
+        run: |
+          python -m radical.cli check examples/01_beginner/01_pipeline_data_flow.rad
+          python -m radical.cli explain examples/01_beginner/01_pipeline_data_flow.rad
+          python -m radical.cli lint examples/01_beginner/01_pipeline_data_flow.rad
+          python -m radical.cli build examples/01_beginner/01_pipeline_data_flow.rad -o /tmp/pipeline_out.py

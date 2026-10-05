@@ -1,0 +1,28 @@
+# Intermediate Example 1: Slotted Structs and Functional Copy-Update
+# Radical structs are immutable, slotted value records with 3x memory reduction
+# over standard Python classes.
+
+# 1. Defining immutable slotted structs:
+struct Point3D(x: float, y: float, z: float)
+struct Material(name: str, roughness: float = 0.5, metallic: float = 0.0)
+
+const origin = Point3D(0.0, 0.0, 0.0)
+const metal = Material("Brushed Aluminum", metallic=1.0)
+
+print("=== Slotted Struct Instances ===")
+print("Origin:", origin)
+print("Material:", metal)
+
+# 2. Non-Destructive Functional Copy-With:
+# In standard Python, updating frozen dataclasses requires verbose `dataclasses.replace(p, x=...)`.
+# In Radical, use the ergonomic `with { ... }` expression:
+const p1 = Point3D(1.0, 2.0, 3.0)
+const p2 = p1 with { x: 10.0, z: 30.0 }
+
+print("\n=== Functional Copy-Update (with) ===")
+print("Original p1: ", p1)
+print("Updated p2:  ", p2)
+print("p1 remained unmodified:", p1.x == 1.0)
+
+const rough_metal = metal with { roughness: 0.95 }
+print("Rough Metal:", rough_metal)

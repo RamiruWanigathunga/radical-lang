@@ -1,0 +1,22 @@
+# Beginner Example 1: Linear Data Pipelines and Arrow Functions
+# Radical transforms nested, inverted Python calls into clean left-to-right pipelines.
+
+const raw_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+# Arrow functions provide concise lambda expressions:
+const is_odd = (n) => n % 2 != 0
+const cube = (n) => n * n * n
+const format_entry = (val, prefix) => f"[{prefix}] value={val}"
+
+# Pipeline syntax using `|>`:
+# In standard Python, this would be:
+# [format_entry(x, "Cube") for x in map(lambda n: n**3, filter(lambda n: n%2 != 0, raw_numbers))]
+const results = raw_numbers
+    |> filter(is_odd, _)
+    |> map(cube, _)
+    |> list
+    |> (items) => [format_entry(x, "Odd Cube") for x in items]
+
+print("=== Pipeline Data Flow Results ===")
+for line in results:
+    print(" ", line)

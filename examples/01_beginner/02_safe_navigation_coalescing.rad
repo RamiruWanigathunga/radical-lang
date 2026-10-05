@@ -1,0 +1,62 @@
+# Beginner Example 2: Safe Navigation and Nullish Coalescing
+# Radical prevents `AttributeError`, `KeyError`, and `IndexError` on optional/null data.
+
+class Account:
+    def __init__(self, name, email=None):
+        self.name = name
+        self.email = email
+
+class User:
+    def __init__(self, account=None):
+        self.account = account
+
+# Safe attribute navigation on objects:
+const user1 = User(Account("Alex Vance", "alex@city17.org"))
+const user2 = User(None)
+
+const user1_name = user1?.account?.name ?? "Guest"
+const user2_name = user2?.account?.name ?? "Guest"
+const user1_email = user1?.account?.email ?? "no-email@domain.com"
+const user2_email = user2?.account?.email ?? "no-email@domain.com"
+
+# Safe subscript indexing on dicts and lists:
+const app_config = {
+    "database": {
+        "connections": ["primary.db.internal", "replica.db.internal"]
+    }
+}
+
+const primary_host = app_config?["database"]?["connections"]?[0] ?? "localhost"
+const fallback_host = app_config?["database"]?["connections"]?[99] ?? "localhost"
+const missing_cache = app_config?["cache"]?["port"] ?? 6379
+
+print("=== Safe Navigation Results ===")
+print("User 1 Name:", user1_name)
+print("User 2 Name (Defaulted):", user2_name)
+print("User 1 Email:", user1_email)
+print("User 2 Email (Defaulted):", user2_email)
+print("Primary DB Host:", primary_host)
+print("Out of Bounds DB Host (Defaulted):", fallback_host)
+print("Missing Cache Port (Defaulted):", missing_cache)
+
+# 2. Nullish Coalescing (`??`) preserves falsy non-null values (0, False, ""):
+const zero_score = 0
+const false_flag = False
+const empty_string = ""
+const null_value = None
+
+print("\n=== Nullish Coalescing (??) vs Python 'or' ===")
+# Python `or` incorrectly overwrites 0, False, and "":
+print("0 or 100:", zero_score or 100, "(overwritten!)")
+print("0 ?? 100:", zero_score ?? 100, "(preserved!)")
+print("False ?? True:", false_flag ?? True, "(preserved!)")
+print("empty_str ?? 'fallback':", repr(empty_string ?? "fallback"), "(preserved!)")
+print("None ?? 'fallback':", repr(null_value ?? "fallback"), "(coalesced!)")
+
+# 3. Nullish Assignment (`??=`):
+let config_timeout = None
+config_timeout ??= 60
+print("\nConfig Timeout after ??= 60:", config_timeout)
+
+config_timeout ??= 120
+print("Config Timeout after second ??= 120 (unchanged):", config_timeout)

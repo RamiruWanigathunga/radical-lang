@@ -1,0 +1,36 @@
+# Intermediate Example 5: Cartesian Matrix Loops (A x B)
+# Radical replaces nested loop indentation with C-accelerated Cartesian products.
+
+# In standard Python, iterating over a 2D matrix requires nested loops:
+#   coords = []
+#   for r in range(height):
+#       for c in range(width):
+#           coords.append((r, c))
+
+const WIDTH = 4
+const HEIGHT = 3
+
+# 1. 2D Coordinate Grid using `for x, y in (A x B):`:
+print("=== 1. Cartesian 2D Coordinate Grid ===")
+let grid_points = []
+for row, col in (0..HEIGHT x 0..WIDTH):
+    grid_points.append((row, col))
+    print(f"Cell ({row}, {col})")
+
+print(f"\nGenerated {len(grid_points)} coordinates without nested indentation bloat.")
+
+# 2. 3D Voxel Coordinate Traversal:
+print("\n=== 2. Cartesian 3D Voxel Grid (2x2x2) ===")
+let voxels = []
+for x, y, z in (0..2 x 0..2 x 0..2):
+    voxels.append((x, y, z))
+
+print(f"Total Voxels: {len(voxels)}")
+print("Voxel list:", voxels)
+
+# 3. Computing a Distance Matrix:
+print("\n=== 3. Distance Matrix Calculation ===")
+for r, c in (0..3 x 0..3):
+    dist = (r**2 + c**2) ** 0.5
+    if r == c:
+        print(f"Diagonal [{r},{c}]: dist = {dist:.2f}")

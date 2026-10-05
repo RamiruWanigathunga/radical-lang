@@ -1,0 +1,38 @@
+# Intermediate Example 2: Algebraic Data Types (Enums)
+# Radical enums provide tagged union variants for robust domain modeling.
+
+# 1. Defining Algebraic Data Types with variants:
+enum Command:
+    Quit
+    Move(x: int, y: int)
+    Write(message: str)
+
+enum PaymentMethod:
+    CreditCard(last4: str, exp_year: int)
+    Crypto(wallet_address: str)
+    BankTransfer(iban: str)
+
+# 2. Creating and inspecting enum instances:
+const cmd1 = Command.Move(15, -42)
+const cmd2 = Command.Write("System initialized successfully")
+const cmd3 = Command.Quit()
+
+print("=== Algebraic Data Types (Enums) ===")
+print("Command 1:", cmd1)
+print("Command 2:", cmd2)
+print("Command 3:", cmd3)
+
+# 3. Pattern matching with standard Python `match / case`:
+def execute_command(cmd: Command) -> str:
+    match cmd:
+        case Command.Quit():
+            return "Terminating application loop."
+        case Command.Move(x, y):
+            return f"Relocating actor to coordinates ({x}, {y})."
+        case Command.Write(msg):
+            return f"Logging output: {msg}"
+
+print("\n=== Pattern Matching on Enums ===")
+print("Execute cmd1:", execute_command(cmd1))
+print("Execute cmd2:", execute_command(cmd2))
+print("Execute cmd3:", execute_command(cmd3))

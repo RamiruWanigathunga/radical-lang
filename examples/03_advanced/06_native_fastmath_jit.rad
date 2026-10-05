@@ -1,0 +1,28 @@
+# Advanced Example 6: Native Fastmath JIT Tier
+# Radical provides Mojo-grade native numerical execution with `native fn`,
+# unlocking LLVM JIT vectorization and fastmath compilation.
+
+# 1. Defining a native fastmath function:
+native fn fast_hypot(x: float, y: float, z: float) -> float:
+    return (x * x + y * y + z * z) ** 0.5
+
+native fn polynomial_kernel(val: float) -> float:
+    return 3.0 * val * val + 2.0 * val + 1.0
+
+print("=== Native Fastmath JIT Execution ===")
+
+# 2. Executing JIT-accelerated functions:
+const h1 = fast_hypot(3.0, 4.0, 12.0)
+print("fast_hypot(3.0, 4.0, 12.0):", h1)
+
+const poly_res = polynomial_kernel(5.0)
+print("polynomial_kernel(5.0):     ", poly_res)
+
+# 3. Running inside an iterative numeric loop:
+let total_dist = 0.0
+for i in 1..=5:
+    fi = float(i)
+    total_dist += fast_hypot(fi, fi, fi)
+
+print(f"Aggregated 3D diagonals (1..=5): {total_dist:.4f}")
+print("Native execution completed successfully.")

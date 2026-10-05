@@ -1,0 +1,33 @@
+# Advanced Example 2: Hardware SIMD Vector Math
+# Radical provides Mojo-grade 4-lane and N-lane SIMD vector operations for
+# numerical, game engine, and graphics computing.
+
+# 1. Instantiating 4-lane float SIMD vectors:
+const pos = simd[float, 4](10.0, 20.0, 30.0, 1.0)
+const vel = simd[float, 4](1.5, -0.5, 2.0, 0.0)
+const accel = simd[float, 4](0.0, -9.8, 0.0, 0.0)
+
+print("=== 1. Hardware SIMD Vectors ===")
+print("Position Vector: ", pos)
+print("Velocity Vector: ", vel)
+print("Gravity Vector:  ", accel)
+
+# 2. Vectorized Arithmetic (Single Instruction, Multiple Data):
+# Position update: pos + vel * dt
+const dt = 0.5
+const updated_vel = vel + accel * dt
+const new_pos = pos + updated_vel * dt
+
+print("\n=== 2. Vectorized Physics Integration ===")
+print(f"Updated Velocity (dt={dt}):", updated_vel)
+print(f"New Position (dt={dt}):    ", new_pos)
+
+# 3. Vector Reductions and Dot Product:
+const v1 = simd[float, 4](1.0, 2.0, 3.0, 4.0)
+const v2 = simd[float, 4](4.0, 3.0, 2.0, 1.0)
+const dot_product = v1.dot(v2)
+const sum_reduction = v1.sum()
+
+print("\n=== 3. Vector Reductions ===")
+print(f"Dot Product (v1 . v2): {dot_product}")
+print(f"v1 Sum Reduction:      {sum_reduction}")

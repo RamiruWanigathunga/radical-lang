@@ -1,0 +1,33 @@
+# Intermediate Example 3: Rust-Style Error Handling with Result[T, E] and the ? Operator
+# Radical provides zero-cost error propagation without expensive exception unwinding.
+
+# 1. Functions returning Result[T, E]:
+fn parse_port(port_str: str) -> Result[int, str]:
+    if not port_str.isdigit():
+        return Result.Err(f"Port '{port_str}' is not numeric")
+    
+    val = int(port_str)
+    if val < 1 or val > 65535:
+        return Result.Err(f"Port {val} is outside valid range (1..65535)")
+    
+    return Result.Ok(val)
+
+# 2. Error propagation using the `?` operator:
+# If `parse_port` returns an `Err`, the function early-returns that `Err` immediately.
+fn start_service(host: str, port_str: str) -> Result[str, str]:
+    port = parse_port(port_str)?
+    return Result.Ok(f"Service listening at {host}:{port}")
+
+# 3. Handling Success and Failure cases:
+const success_result = start_service("0.0.0.0", "8080")
+const invalid_str_result = start_service("0.0.0.0", "http")
+const out_of_range_result = start_service("0.0.0.0", "70000")
+
+print("=== Result[T, E] and ? Error Propagation ===")
+print("Valid Setup:       ", success_result)
+print("Invalid String:    ", invalid_str_result)
+print("Out of Range Port: ", out_of_range_result)
+
+# Checking status with `.is_ok` and `.is_err`:
+if success_result.is_ok:
+    print("\nVerified Server Status:", success_result.val)

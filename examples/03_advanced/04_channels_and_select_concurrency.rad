@@ -1,0 +1,42 @@
+# Advanced Example 4: Channels and Non-Blocking Select Concurrency
+# Radical provides Go-style thread-safe ring-buffer channels and non-blocking
+# `select:` multi-channel polling.
+
+# 1. Creating typed, bounded channels:
+let orders_chan = chan[str](10)
+let alerts_chan = chan[str](5)
+
+# 2. Sending messages to channels:
+orders_chan.send("Order #1042: GPU Server Cluster")
+orders_chan.send("Order #1043: High-Bandwidth Memory")
+alerts_chan.send("Alert: CPU Temperature nominal")
+
+print("=== 1. Channel Ingestion ===")
+print("Orders queue size: ", orders_chan.qsize())
+print("Alerts queue size: ", alerts_chan.qsize())
+
+# 3. Non-Blocking Multi-Branch `select:`
+# Polls channels in sequence and executes the first available message branch,
+# or executes `default:` immediately if all channels are empty.
+print("\n=== 2. Multi-Channel Select Dispatch ===")
+for step in 1..=3:
+    let event_log = "idle"
+    select:
+        case alert = alerts_chan.recv():
+            event_log = f"[PRIORITY ALERT] {alert}"
+        case order = orders_chan.recv():
+            event_log = f"[ORDER DISPATCH] {order}"
+        default:
+            event_log = "[POLL] No incoming events on monitored channels."
+    print(f"Step {step}: {event_log}")
+
+# 4. Verifying Default Fallback When Channels Drain:
+let final_status = "unpolled"
+select:
+    case order = orders_chan.recv():
+        final_status = f"Drained order: {order}"
+    default:
+        final_status = "All channel queues are idle and ready for new events."
+
+print("\n=== 3. Idle Fallback ===")
+print(final_status)

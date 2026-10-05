@@ -1,0 +1,16 @@
+# Benchmark 03: Radical Zero-CUDA Accelerated GPU Transformation
+
+const N = 25000
+
+const input_buf = gpu.alloc(N, "float32")
+const output_buf = gpu.alloc(N, "float32")
+
+for i in 0..N:
+    input_buf[i] = float(i)
+
+gpu for i in 0..N:
+    output_buf[i] = input_buf[i] * 3.5 + 2.0
+
+gpu.sync(output_buf)
+
+print(f"Transformed {N} items. Sample [100]: {output_buf[100]}")

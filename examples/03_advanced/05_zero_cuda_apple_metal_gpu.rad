@@ -1,0 +1,33 @@
+# Advanced Example 5: Zero-CUDA Apple Metal GPU Compute
+# Radical enables Apple Silicon GPU acceleration without requiring NVIDIA CUDA drivers,
+# leveraging macOS Unified Memory Architecture for zero-copy CPU-GPU operations.
+
+print(f"=== Zero-CUDA GPU Compute ===")
+print(f"Detected Hardware Accelerator: {gpu.name}")
+
+const ELEMENT_COUNT = 32
+
+# 1. Allocating zero-copy unified memory buffers directly on GPU:
+const input_data = gpu.alloc(ELEMENT_COUNT, "float32")
+const result_data = gpu.alloc(ELEMENT_COUNT, "float32")
+
+# Initialize inputs
+for i in 0..ELEMENT_COUNT:
+    input_data[i] = float(i)
+
+# 2. Executing parallel GPU kernel loop:
+# On Apple Silicon (M1/M2/M3/M4), this dispatches via Metal shaders.
+# On Linux/x86_64 systems without Metal, it seamlessly falls back to CPU SIMD.
+gpu for idx in 0..ELEMENT_COUNT:
+    x = input_data[idx]
+    result_data[idx] = (x * 2.0) + 1.0
+
+# 3. Synchronize unified memory state:
+gpu.sync(result_data)
+
+print(f"\nDispatched GPU compute kernel across {ELEMENT_COUNT} parallel elements.")
+print("Sample Results (first 8 elements):")
+for k in 0..8:
+    print(f"  Input: {input_data[k]:5.1f}  ->  Transformed: {result_data[k]:5.1f}")
+
+print("\nZero-CUDA GPU Compute completed successfully!")

@@ -1,0 +1,29 @@
+# Beginner Example 4: Mutable (let) and Immutable (const) Bindings
+# Radical enforces compile-time immutability with `const` and makes mutability explicit with `let`.
+
+# 1. Compile-Time Constants:
+const APP_NAME = "Radical Production Engine"
+const MAX_CONCURRENT_USERS = 5000
+const API_VERSION = "v1.2.0"
+
+print(f"=== {APP_NAME} ({API_VERSION}) ===")
+print("Max Concurrency Limit:", MAX_CONCURRENT_USERS)
+
+# 2. Explicit Mutable Bindings with `let`:
+let active_sessions = 0
+let total_processed = 0
+
+print("\nInitial Sessions:", active_sessions)
+
+for step in 1..=5:
+    active_sessions += 10
+    total_processed += step * 100
+
+print("Updated Active Sessions:", active_sessions)
+print("Total Requests Processed:", total_processed)
+
+# In Radical, attempting to reassign a `const` symbol like:
+#   APP_NAME = "New Name"
+#   MAX_CONCURRENT_USERS += 100
+# will trigger a compile-time `RadicalCompileError` before any code runs!
+print("\nConst immutability guarantees compile-time safety across large codebases.")

@@ -1,0 +1,47 @@
+# Showdown 03: Radical Multi-Core Monte Carlo Financial Simulation
+# Simulates 8,000,000 stochastic asset paths with Box-Muller normal transforms
+# Harnesses all CPU cores via Radical's native `parallel(mode="process")`.
+
+import math
+import time
+
+fn simulate_batch(batch_idx: int) -> float:
+    state = 123456789 + batch_idx * 10007
+    count = 100_000
+    s0 = 100.0
+    k = 105.0
+    r = 0.05
+    sigma = 0.2
+    t = 1.0
+    drift = (r - 0.5 * sigma * sigma) * t
+    vol = sigma * math.sqrt(t)
+
+    payoff_sum = 0.0
+    for _ in 0..count:
+        state = (state * 1664525 + 1013904223) & 0xFFFFFFFF
+        u1 = (state + 0.5) / 4294967296.0
+        state = (state * 1664525 + 1013904223) & 0xFFFFFFFF
+        u2 = (state + 0.5) / 4294967296.0
+        z = math.sqrt(-2.0 * math.log(u1)) * math.cos(6.283185307179586 * u2)
+        st = s0 * math.exp(drift + vol * z)
+        payoff = st - k if st > k else 0.0
+        payoff_sum += payoff
+    return payoff_sum
+
+const NUM_BATCHES = 80
+const PATHS_PER_BATCH = 100_000
+const TOTAL_PATHS = NUM_BATCHES * PATHS_PER_BATCH
+
+print(f"[Radical] Starting Multi-Core Monte Carlo ({TOTAL_PATHS:,} stochastic asset paths)...")
+
+start = time.perf_counter()
+
+# High-throughput parallel batch simulation across all CPU cores
+batch_results = parallel(mode="process", chunk_size=4) for b in 0..NUM_BATCHES:
+    return simulate_batch(b)
+
+total_payoff = sum(batch_results)
+price = (total_payoff / TOTAL_PATHS) * math.exp(-0.05)
+elapsed = time.perf_counter() - start
+
+print(f"[Radical] Finished in {elapsed:.3f} s (Fair Call Price: ${price:.4f})")

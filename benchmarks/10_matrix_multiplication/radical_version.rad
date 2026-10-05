@@ -1,0 +1,16 @@
+# Benchmark 10: Radical Multi-Core Parallel Matrix Multiplication (80x80)
+
+const N = 80
+A = [[float(i + j) for j in 0..N] for i in 0..N]
+B = [[float(i * 2 + j) for j in 0..N] for i in 0..N]
+C = [[0.0 for _ in 0..N] for _ in 0..N]
+
+parallel for i in 0..N:
+    for j in 0..N:
+        s = 0.0
+        for k in 0..N:
+            s += A[i][k] * B[k][j]
+        C[i][j] = s
+
+total = sum(sum(row) for row in C)
+print(f"Matrix mult sum (size {N}x{N}): {total:.1f}")

@@ -1,0 +1,12 @@
+# Benchmark 04: Radical Raw Continuous Ctypes Memory Buffer
+
+const SIZE = 50000
+
+# Allocate continuous physical byte buffer
+raw buf[50000]:
+
+for i in 0..SIZE:
+    buf[i] = (i * 7) % 256
+
+total = sum(buf)
+print(f"Memory sum: {total}")

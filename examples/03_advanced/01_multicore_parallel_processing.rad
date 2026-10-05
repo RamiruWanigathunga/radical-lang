@@ -1,0 +1,27 @@
+# Advanced Example 1: Multi-Core CPU Parallelism
+# Radical bypasses the Python Global Interpreter Lock (GIL) using `parallel for`
+# loops mapped to multi-core worker pools.
+
+import time
+
+def compute_heavy_task(item: int) -> int:
+    """Simulates CPU-bound numeric computation."""
+    res = 0
+    for k in 1..=20000:
+        res += (k * item) % 997
+    return res
+
+const dataset = [n for n in 1..=12]
+
+print("=== Multi-Core CPU Parallel Processing ===")
+print(f"Distributing {len(dataset)} CPU-bound tasks across multi-core worker pool...")
+
+t0 = time.perf_counter()
+let parallel_results = []
+parallel for item in dataset:
+    parallel_results.append(compute_heavy_task(item))
+elapsed = (time.perf_counter() - t0) * 1000
+
+print(f"Parallel loop completed in {elapsed:.2f} ms")
+print(f"Processed items: {len(parallel_results)}")
+print("Sample Results (first 4):", parallel_results[:4])

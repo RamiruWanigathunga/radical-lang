@@ -1,0 +1,10 @@
+# Benchmark 06: Radical Cartesian Vectorized Grid Product
+
+def compute_grid(w: int, h: int) -> float:
+    total_dist = 0.0
+    for x, y in (0..w x 0..h):
+        total_dist += (x * x + y * y) ** 0.5
+    return total_dist
+
+res = compute_grid(300, 300)
+print(f"Total grid distance: {res:.2f}")

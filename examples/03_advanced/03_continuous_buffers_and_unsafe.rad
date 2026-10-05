@@ -1,0 +1,39 @@
+# Advanced Example 3: Contiguous Memory Buffers and Scoped Unsafe
+# Radical provides cache-line aligned contiguous memory buffers with zero-copy slicing
+# and thread-safe scoped `unsafe:` pointer blocks.
+
+# 1. Allocating unboxed continuous ctypes memory buffers:
+const BUFFER_SIZE = 16
+let mem_buf = buffer[f32](BUFFER_SIZE)
+
+# Standard index assignments are bounds-checked:
+for i in 0..BUFFER_SIZE:
+    mem_buf[i] = float(i * 1.5)
+
+print("=== 1. Contiguous Typed Buffer ===")
+print(f"Allocated {BUFFER_SIZE}-element f32 contiguous buffer.")
+print(f"Byte size in hardware: {mem_buf.nbytes} bytes")
+print("First 4 elements:", [mem_buf[i] for i in 0..4])
+
+# 2. Zero-Copy Slicing with Range Literals:
+let slice_view = mem_buf[4..8]
+print("\n=== 2. Zero-Copy Sub-Buffer View ===")
+print("Slice view length:", len(slice_view))
+print("Slice view elements (indices 4..8):", [slice_view[i] for i in 0..4])
+
+# 3. Scoped `unsafe:` Block for Unchecked Low-Level Pointer Operations:
+# Unchecked reads/writes eliminate bounds-checking overhead in tight inner loops,
+# quarantined inside an explicit `unsafe:` boundary tracked by the compiler.
+print("\n=== 3. Scoped Unsafe Pointer Operations ===")
+unsafe:
+    ptr = mem_buf.ptr
+    # Write directly to memory offsets unchecked:
+    ptr.write_unchecked(0, 99.9)
+    ptr.write_unchecked(1, 42.42)
+    
+    val0 = ptr.read_unchecked(0)
+    val1 = ptr.read_unchecked(1)
+    print(f"Unchecked read at offset 0: {val0:.2f}")
+    print(f"Unchecked read at offset 1: {val1:.2f}")
+
+print("\nBuffer value at index 0 after unsafe write:", mem_buf[0])

@@ -1,0 +1,27 @@
+# Beginner Example 3: Ergonomic Range Literals and Comprehensions
+# Radical introduces Rust/Swift style numeric ranges eliminating off-by-one errors.
+
+# 1. Exclusive Range: 0..5 (evaluates to [0, 1, 2, 3, 4])
+const exclusive_nums = [x for x in 0..5]
+
+# 2. Inclusive Range: 1..=5 (evaluates to [1, 2, 3, 4, 5])
+const inclusive_nums = [x for x in 1..=5]
+
+# 3. Stepped Range: 0..10..2 (evaluates to [0, 2, 4, 6, 8])
+const stepped_nums = [x for x in 0..10..2]
+
+print("=== Radical Range Literals ===")
+print("Exclusive Range 0..5:  ", exclusive_nums)
+print("Inclusive Range 1..=5: ", inclusive_nums)
+print("Stepped Range 0..10..2:", stepped_nums)
+
+# 4. Using ranges in loops and calculations
+let sum_first_ten = 0
+for i in 1..=10:
+    sum_first_ten += i
+
+print("\nSum of 1..=10:", sum_first_ten)
+
+# 5. Combining ranges with list transformations
+const squares = [x * x for x in 1..=6]
+print("Squares of 1..=6:", squares)

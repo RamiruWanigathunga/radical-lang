@@ -1,0 +1,13 @@
+# Benchmark 02: Radical Hardware-Vectorized SIMD Dot Product
+
+const b = simd[float, 4](2.0, 3.0, 4.0, 5.0)
+
+def run_dot_products():
+    total = 0.0
+    for i in 0..10000:
+        a = simd[float, 4](float(i), float(i + 1), float(i + 2), float(i + 3))
+        total += a.dot(b)
+    return total
+
+res = run_dot_products()
+print(f"Total vector dot sum: {res:.1f}")

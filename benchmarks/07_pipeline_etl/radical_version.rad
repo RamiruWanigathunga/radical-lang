@@ -1,0 +1,11 @@
+# Benchmark 07: Radical Left-to-Right Pipeline Operator
+
+raw_data = list(0..20000)
+
+# Linear pipeline: raw_data |> filter(...) |> map(...) |> list
+res = raw_data 
+    |> filter((x) => x % 3 == 0, _) 
+    |> map((x) => x * 3 + 1, _) 
+    |> list
+
+print(f"ETL Count: {len(res)}, First: {res[0]}, Last: {res[-1]}")

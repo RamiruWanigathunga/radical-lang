@@ -1,0 +1,54 @@
+# Radical Comprehensive Test Suite (.rad)
+
+# 1. Pipelines and Arrow Functions
+const numbers = [1, 2, 3, 4, 5]
+const double = (x) => x * 2
+const is_even = (x) => x % 2 == 0
+
+const evens = numbers |> filter(is_even, _) |> map(double, _) |> list
+print("Evens doubled:", evens)
+assert evens == [4, 8], f"Expected [4, 8], got {evens}"
+
+# 2. Safe Navigation & Coalescing
+const profile = {"user": {"details": None}}
+const bio = profile?.user?.details?.bio ?? "No bio available"
+print("Bio:", bio)
+assert bio == "No bio available", f"Expected 'No bio available', got {bio}"
+
+# 3. Ranges & Cartesian Loops
+const grid = []
+for x, y in (0..2 x 0..2):
+    grid.append((x, y))
+print("Grid:", grid)
+assert len(grid) == 4, f"Expected 4 items, got {len(grid)}"
+assert (0, 0) in grid and (1, 1) in grid
+
+# 4. Structs & Immutability
+struct Point(x: float, y: float)
+const origin = Point(0.0, 0.0)
+print("Origin:", origin)
+assert origin.x == 0.0 and origin.y == 0.0
+
+# 5. Raw Continuous Memory
+raw buffer[4]:
+for i in 0..4:
+    buffer[i] = i * 10
+print("Buffer item 2:", buffer[2])
+assert buffer[2] == 20
+
+# 6. Destructuring
+const payload = {"id": 101, "token": "secret_abc"}
+const { id, token } = payload
+assert id == 101
+assert token == "secret_abc"
+
+# 7. Defer Statements
+cleanup_log = []
+def do_work():
+    defer cleanup_log.append("LIFO 2")
+    defer cleanup_log.append("LIFO 1")
+    cleanup_log.append("Working")
+
+do_work()
+assert cleanup_log == ["Working", "LIFO 1", "LIFO 2"]
+print("All Core Radical Features Verified Successfully!")

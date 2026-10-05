@@ -1,0 +1,13 @@
+# Benchmark 05: Radical Lightweight Slotted Frozen Struct
+
+struct Point(x: float, y: float)
+
+def run():
+    total = 0.0
+    for i in 0..25000:
+        p = Point(float(i), float(i + 1))
+        total += p.x * p.x + p.y * p.y
+    return total
+
+res = run()
+print(f"Total distance sum: {res:.1f}")

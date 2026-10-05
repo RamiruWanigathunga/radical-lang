@@ -1,0 +1,47 @@
+# Showdown 02: Radical Multi-Core Mandelbrot Fractal Engine
+# Computes 800x800 complex plane (up to 300 iterations per pixel = 192M ops).
+# Harnesses all CPU cores via Radical's native `parallel(mode="process")`.
+
+import time
+
+fn escape_count(cr: float, ci: float, max_iter: int) -> int:
+    zr = 0.0
+    zi = 0.0
+    zr2 = 0.0
+    zi2 = 0.0
+    for i in 0..max_iter:
+        if zr2 + zi2 > 4.0:
+            return i
+        zi = 2.0 * zr * zi + ci
+        zr = zr2 - zi2 + cr
+        zr2 = zr * zr
+        zi2 = zi * zi
+    return max_iter
+
+def compute_row(y: int) -> int:
+    height = 800
+    width = 800
+    max_iter = 300
+    ci = -1.25 + (y / height) * 2.5
+    row_sum = 0
+    dx = 2.5 / width
+    xmin = -2.0
+    for x in 0..width:
+        cr = xmin + x * dx
+        row_sum += escape_count(cr, ci, max_iter)
+    return row_sum
+
+const WIDTH = 800
+const HEIGHT = 800
+print(f"[Radical] Starting Multi-Core Mandelbrot Engine ({WIDTH}x{HEIGHT}, max_iter=300)...")
+
+start = time.perf_counter()
+
+# High-throughput parallel row computation across all CPU cores
+row_results = parallel(mode="process", chunk_size=20) for y in 0..HEIGHT:
+    return compute_row(y)
+
+total = sum(row_results)
+elapsed = time.perf_counter() - start
+
+print(f"[Radical] Finished in {elapsed:.3f} s (Checksum: {total})")

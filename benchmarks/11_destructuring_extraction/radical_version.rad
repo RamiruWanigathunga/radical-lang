@@ -1,0 +1,20 @@
+# Benchmark 11: Radical Destructuring Syntax Record Extraction
+
+records = [
+    {"id": i, "name": f"user_{i}", "score": i * 1.5, "role": "admin" if i % 2 == 0 else "guest"}
+    for i in 0..25000
+]
+
+def extract_records(items):
+    total_score = 0.0
+    admin_count = 0
+    for r in items:
+        # Radical concise destructuring assignment
+        { id, name, score, role } = r
+        total_score += score
+        if role == "admin":
+            admin_count += 1
+    return total_score, admin_count
+
+score, admins = extract_records(records)
+print(f"Total score: {score:.1f}, Admins: {admins}")

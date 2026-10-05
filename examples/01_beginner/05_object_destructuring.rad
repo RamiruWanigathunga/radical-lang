@@ -1,0 +1,33 @@
+# Beginner Example 5: Object and Dictionary Destructuring
+# Radical allows concise property and key unpacking without boilerplate subscripts.
+
+# 1. Dictionary Destructuring:
+const user_response = {
+    "user_id": 1042,
+    "username": "gordon_f",
+    "department": "Theoretical Physics",
+    "access_level": 4
+}
+
+# Extract multiple keys simultaneously:
+const { user_id, username, access_level } = user_response
+
+print("=== Dictionary Destructuring ===")
+print("User ID:", user_id)
+print("Username:", username)
+print("Access Level:", access_level)
+
+# 2. Object Attribute Destructuring:
+class ServerInfo:
+    def __init__(self, host, port, protocol):
+        self.host = host
+        self.port = port
+        self.protocol = protocol
+
+const server = ServerInfo("api.production.internal", 8443, "https")
+
+# Extract attributes directly:
+const { host, port, protocol } = server
+
+print("\n=== Object Destructuring ===")
+print(f"Connecting to: {protocol}://{host}:{port}")

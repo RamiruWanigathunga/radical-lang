@@ -1,0 +1,16 @@
+# Benchmark 08: Radical Safe Navigation & Coalescing
+
+data = [
+    {"user": {"profile": {"address": {"city": "Tokyo"}}}} if i % 3 == 0 else
+    ({"user": {"profile": None}} if i % 3 == 1 else {})
+    for i in 0..15000
+]
+
+def traverse(items):
+    cities = []
+    for item in items:
+        cities.append(item?["user"]?["profile"]?["address"]?["city"] ?? "Unknown")
+    return cities
+
+res = traverse(data)
+print(f"Traversed {len(res)} items. Unknown count: {res.count('Unknown')}")

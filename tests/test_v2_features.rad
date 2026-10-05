@@ -1,0 +1,97 @@
+# Radical v2 Language Features End-to-End Test
+
+# 1. Variables: let vs const
+const SECONDS = 60 * 60
+let counter = 0
+counter += 1
+assert counter == 1
+assert SECONDS == 3600
+
+# 2. Scoped using block
+using a = arena(1024):
+    chunk = a.alloc(32)
+    assert len(chunk) == 32
+
+# 3. First-class buffer and zero-copy slice
+let buf = buffer[f32](16)
+buf[0] = 3.14
+let view = buf[0..4]
+assert len(view) == 4
+
+# 4. Scoped unsafe block
+unsafe:
+    ptr = buf.ptr
+    ptr.write_unchecked(1, 2.718)
+    assert ptr.read_unchecked(1) > 2.7
+
+# 5. Algebraic Data Types (Enums)
+enum Status:
+    Pending
+    Active
+
+enum Shape:
+    Circle(radius: float)
+    Rectangle(width: float, height: float)
+
+let c = Shape.Circle(5.0)
+assert c.radius == 5.0
+
+# 6. Functional Struct copy-update with
+struct Point(x: float, y: float)
+const p1 = Point(1.0, 2.0)
+const p2 = p1 with { x: 10.0 }
+assert p2.x == 10.0 and p2.y == 2.0
+
+# 7. Error propagation with ?
+fn parse_num(s: str) -> Result[int, str]:
+    if s.isdigit():
+        return Result.Ok(int(s))
+    return Result.Err("Not a number")
+
+fn calc() -> Result[int, str]:
+    val = parse_num("42")?
+    return Result.Ok(val * 2)
+
+res = calc()
+assert res.is_ok and res.val == 84
+
+# 8. Channels and Select Block
+let ch = chan[str](5)
+ch.send("hello from channel")
+
+let res_msg = "none"
+select:
+    case msg = ch.recv():
+        res_msg = msg
+    default:
+        res_msg = "empty"
+
+assert res_msg == "hello from channel"
+
+# 9. Tagged template literal
+fn sql(query: str) -> str:
+    return f"QUERY: {query}"
+
+user_id = 99
+q = sql"SELECT * FROM users WHERE id = {user_id}"
+assert q == "QUERY: SELECT * FROM users WHERE id = 99"
+
+# 10. Native fn
+native fn add_fast(x: float, y: float) -> float:
+    return x + y
+
+assert add_fast(1.5, 2.5) == 4.0
+
+# 11. Structural Traits (Protocols)
+trait Formattable:
+    def format_text(self) -> str:
+        ...
+
+class Item:
+    def format_text(self) -> str:
+        return "Item #1"
+
+let item = Item()
+assert isinstance(item, Formattable)
+
+print("All Radical v2 Features Verified Successfully!")

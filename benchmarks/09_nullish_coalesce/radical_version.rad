@@ -1,0 +1,14 @@
+# Benchmark 09: Radical Nullish Coalescing (??)
+
+values = [None if i % 2 == 0 else i for i in 0..50000]
+
+def run_coalesce(items):
+    resolved = []
+    for item in items:
+        # Radical operator preserving falsy values (0, False)
+        val = item ?? 999
+        resolved.append(val)
+    return resolved
+
+res = run_coalesce(values)
+print(f"Coalesced {len(res)} items, sum: {sum(res)}")

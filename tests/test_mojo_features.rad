@@ -1,0 +1,50 @@
+# Mojo Systems Features Test Suite (.rad)
+
+# 1. Mojo-style Strict Typed Function (fn)
+fn compute_energy(mass: float, velocity: float) -> float:
+    return 0.5 * mass * velocity * velocity
+
+const energy = compute_energy(2.0, 10.0)
+print("Computed Energy:", energy)
+assert energy == 100.0, f"Expected 100.0, got {energy}"
+
+# 2. Hardware SIMD Vectors (simd[dtype, width])
+v1 = simd[float, 4](1.0, 2.0, 3.0, 4.0)
+v2 = simd[float, 4](10.0, 20.0, 30.0, 40.0)
+
+v_sum = v1 + v2
+print("SIMD Sum:", v_sum)
+assert v_sum.to_list() == [11.0, 22.0, 33.0, 44.0]
+
+v_scaled = v1 * 3.0
+assert v_scaled.to_list() == [3.0, 6.0, 9.0, 12.0]
+
+dot_result = v1.dot(v2)
+print("SIMD Dot Product:", dot_result)
+# 1*10 + 2*20 + 3*30 + 4*40 = 10 + 40 + 90 + 160 = 300
+assert dot_result == 300.0
+
+# 3. Inbuilt Multi-Core Parallel For Loop (parallel for)
+results = []
+parallel for i in 0..10:
+    results.append(i * 2)
+
+print("Parallel Loop Result Count:", len(results))
+assert len(results) == 10
+assert sorted(results) == [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+# 4. Zero-CUDA Unified GPU Compute
+buf = gpu.alloc(8, "float")
+for i in 0..8:
+    buf[i] = float(i)
+
+gpu for i in 0..8:
+    buf[i] = buf[i] * 5.0
+
+gpu.sync(buf)
+print("GPU Device:", gpu.device.name)
+print("GPU Buffer Item 3:", buf[3])
+assert buf[3] == 15.0
+assert buf[7] == 35.0
+
+print("All Mojo-Style Systems Features Verified Successfully!")

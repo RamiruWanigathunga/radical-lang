@@ -1,0 +1,38 @@
+# Intermediate Example 4: Resource Management with `defer` and `using`
+# Radical provides Go-style LIFO cleanup with `defer` and RAII scoped context with `using`.
+
+# 1. Deterministic LIFO cleanup with `defer`:
+def simulate_database_transaction():
+    print("Opening database connection...")
+    defer print("-> [Defer 2] Database connection closed safely.")
+    defer print("-> [Defer 1] Transaction commit verified.")
+
+    print("Executing query 1: INSERT INTO audit_logs...")
+    print("Executing query 2: UPDATE account_balances...")
+    print("Completed business logic in transaction scope.")
+    # Cleanups execute automatically in reverse order upon function exit:
+
+print("=== 1. Testing Defer LIFO Execution ===")
+simulate_database_transaction()
+
+# 2. Defer executes even if an exception occurs:
+def faulty_operation():
+    defer print("-> [Defer Safety] Emergency resource rollback succeeded!")
+    print("Allocating temporary file handle...")
+    print("Raising simulated network disconnect...")
+    raise ConnectionResetError("Connection lost mid-stream")
+
+print("\n=== 2. Defer Execution on Exception ===")
+try:
+    faulty_operation()
+except ConnectionResetError as e:
+    print(f"Caught handled exception: {e}")
+
+# 3. Scoped RAII resource management with `using`:
+# `using var = expr:` maps directly to Python context management (`with`)
+using a = arena(1024):
+    print("\n=== 3. Scoped Arena Allocation (using) ===")
+    chunk1 = a.alloc(64)
+    chunk2 = a.alloc(128)
+    print(f"Allocated chunk1 ({len(chunk1)} bytes) and chunk2 ({len(chunk2)} bytes) from arena.")
+    print("Arena automatically reclaimed on block exit!")
