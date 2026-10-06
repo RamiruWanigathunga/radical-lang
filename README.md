@@ -78,7 +78,7 @@ Radical introduces targeted, high-impact features designed to eliminate defensiv
 ### From Source (Development)
 ```bash
 # Clone the repository
-git clone https://github.com/radical-lang/radical-lang.git
+git clone https://github.com/RamiruWanigathunga/radical-lang.git
 cd radical-lang
 
 # Create and activate virtual environment
@@ -163,14 +163,16 @@ print(python_code)
 
 ### Code Comparison
 
-#### Radical (`.rad`)
+#### 1. Pipeline Processing & Safe Navigation
+
+**Radical (`.rad`)**
 ```radical
 const raw_users = [
     {"name": "Alice", "score": 95, "tags": ["admin", "dev"]},
     {"name": "Bob", "score": 0, "tags": None},
 ]
 
-# Pipeline fusion, safe navigation, arrow functions, and nullish coalescing:
+# Pipeline & safe navigation
 const top_performers = raw_users
     |> filter((u) => (u?.score ?? 0) > 50, _)
     |> map((u) => u?.name?.upper(), _)
@@ -179,14 +181,14 @@ const top_performers = raw_users
 print("Top Performers:", top_performers)
 ```
 
-#### Equivalent Standard Python
+**Equivalent Standard Python**
 ```python
 raw_users = [
     {"name": "Alice", "score": 95, "tags": ["admin", "dev"]},
     {"name": "Bob", "score": 0, "tags": None},
 ]
 
-# Defensive, deeply nested, multi-stage list comprehension
+# Defensive list comprehension
 top_performers = [
     u["name"].upper()
     for u in raw_users
@@ -195,6 +197,35 @@ top_performers = [
 ]
 
 print("Top Performers:", top_performers)
+```
+
+#### 2. Multi-Dimensional Iteration (Cartesian Loops)
+
+**Radical (`.rad`)**
+```radical
+const WIDTH = 4
+const HEIGHT = 3
+
+# Cartesian product replaces nested loops
+let grid = []
+for row, col in (0..HEIGHT x 0..WIDTH):
+    grid.append((row, col))
+
+print("Grid points:", len(grid))
+```
+
+**Equivalent Standard Python**
+```python
+WIDTH = 4
+HEIGHT = 3
+
+# Nested loops
+grid = []
+for row in range(HEIGHT):
+    for col in range(WIDTH):
+        grid.append((row, col))
+
+print("Grid points:", len(grid))
 ```
 
 ---
@@ -248,7 +279,7 @@ python benchmarks/run_all.py
 
 ```bash
 # Clone and enter repo
-git clone https://github.com/radical-lang/radical-lang.git
+git clone https://github.com/RamiruWanigathunga/radical-lang.git
 cd radical-lang
 
 # Install dev dependencies
